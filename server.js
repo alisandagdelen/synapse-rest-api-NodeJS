@@ -203,7 +203,7 @@ app.put('/todos/:id', middleware.requireAuthentication, function(req, res) {
 });
 
 app.post('/users', function(req, res) {
-	var body = _.pick(req.body, 'email', 'password');
+	var body = _.pick(req.body, 'email', 'password' ,'username');
 
 	db.user.create(body).then(function(user) {
 		res.json(user.toPublicJSON());
@@ -248,7 +248,7 @@ app.delete('/users/login', middleware.requireAuthentication, function(req, res) 
 });
 
 db.sequelize.sync({
-	force: true
+	//force: true
 }).then(function() {
 	app.listen(PORT, function() {
 		console.log('Express listening on port !' + PORT + '!');
