@@ -8,10 +8,17 @@ module.exports = function(sequelize, DataTypes) {
 			}
 
 		},
-		completed: {
-			type: DataTypes.BOOLEAN,
+		title: {
+			type: DataTypes.STRING,
 			allowNull: false,
-			defaultValue: false
+			validate: {
+				len: [1, 100]
+			}
+
+		},
+		date: {
+			type: DataTypes.STRING,
+			allowNull: false
 		}
 	});
 

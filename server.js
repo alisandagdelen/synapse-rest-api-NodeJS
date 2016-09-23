@@ -39,28 +39,7 @@ app.get('/todos', middleware.requireAuthentication, function(req, res) {
 		}, function(e) {
 			res.status(500).send();
 		});
-		/*
-		var filteredTodos = todos;
-		if (queryParams.hasOwnProperty('completed') && queryParams.completed === 'true') {
-			filteredTodos = _.where(filteredTodos, {
-				completed: true
-			});
-		} else if (queryParams.hasOwnProperty('completed') && queryParams.completed === 'false') {
-			filteredTodos = _.where(filteredTodos, {
-				completed: false
-			});
-		}
-
-		if (queryParams.hasOwnProperty('q') && queryParams.q.length > 0) {
-			filteredTodos = _.filter(filteredTodos, function(todo) {
-				return todo.description.toLowerCase().indexOf(queryParams.q.toLowerCase()) > -1;
-			});
-		}
-		// if has property ?? completed === 'true'
-		// filteredTdos = _.where(filteredTodos, ?);
-		// else if has prop && completed if 'false'
-		res.json(filteredTodos);
-		*/
+		
 	})
 	// GET /todos/:d 
 app.get('/todos/:id', middleware.requireAuthentication, function(req, res) {
@@ -79,29 +58,12 @@ app.get('/todos/:id', middleware.requireAuthentication, function(req, res) {
 	}, function(e) {
 		res.status(500).send();
 	});
-	/*
-	var matchedTodo = _.findWhere(todos, {
-		id: todoId
-	});
-	var matchedTodo;
-	todos.forEach(function(todo){
-		if (todoId === todo.id){
-			matchedTodo = todo;
-		}
-	});
 
-	if (matchedTodo) {
-		res.json(matchedTodo);
-	} else {
-		res.status(404).send();
-	}
-	res.send('Asking for todo with id of ' + req.params.id)
-	*/
 });
 
 // POST /todos
 app.post('/todos', middleware.requireAuthentication, function(req, res) {
-	var body = _.pick(req.body, 'description', 'completed');
+	var body = _.pick(req.body, 'title', 'description','date');
 	db.todo.create(body).then(function(todo) {
 
 		req.user.addTodo(todo).then(function() {
@@ -112,17 +74,7 @@ app.post('/todos', middleware.requireAuthentication, function(req, res) {
 	}, function(e) {
 		res.status(400).json(e);
 	});
-	/*
-		if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0) {
-			return res.status(400).send();
-		}
-		body.description = body.description.trim();
-		//set body.descripton to be trimed value
-		body.id = todoNextId++;
-		todos.push(body);
-		res.json(body);
-		//try line  console.log('Deneme : ' + body.hasOwnProperty('completed') + '  weqweq  ' + body.description);
-		*/
+	
 });
 
 // DELETE /todos/:id
@@ -144,19 +96,7 @@ app.delete('/todos/:id', middleware.requireAuthentication, function(req, res) {
 	}, function() {
 		res.status(500).send();
 	});
-	/*
-	var matchedTodo = _.findWhere(todos, {
-		id: todoId
-	});
-	if (!matchedTodo) {
-		res.status(404).json({
-			"error": "no todo found"
-		});
-	} else {
-		todos = _.without(todos, matchedTodo);
-		res.json(matchedTodo);
-	}
-	*/
+
 });
 
 // PUT /todos/:id
@@ -169,11 +109,7 @@ app.put('/todos/:id', middleware.requireAuthentication, function(req, res) {
 	*/
 	var body = _.pick(req.body, 'description', 'completed');
 	var attributes = {};
-	/*
-	if (!matchedTodo) {
-		return res.status(404).send();
-	}
-	*/
+
 	if (body.hasOwnProperty('completed')) {
 		attributes.completed = body.completed;
 	}
@@ -222,14 +158,7 @@ app.post('/users/login', function(req, res) {
 		return db.token.create({
 			token: token
 		});
-		/*
-		if (token) {
-			res.header('Auth', token).json(user.toPublicJSON());
-
-		} else {
-			res.status(401).send();
-
-		} */
+	
 	}).then(function(tokenInstance) {
 		res.header('Auth', tokenInstance.get('token')).json(userInstance.toPublicJSON());
 	}).catch(function() {
