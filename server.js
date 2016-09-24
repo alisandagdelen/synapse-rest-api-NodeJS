@@ -98,7 +98,7 @@ app.delete('/todos/:id', middleware.requireAuthentication, function(req, res) {
 	});
 
 });
-
+//
 // PUT /todos/:id
 app.put('/todos/:id', middleware.requireAuthentication, function(req, res) {
 	var todoId = parseInt(req.params.id, 10);
