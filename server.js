@@ -15,18 +15,14 @@ app.use(bodyParser.json());
 app.get('/', function(req, res) {
 	res.send('TODO App !! Root');
 });
-// GET /todos?completed=true
+// GET /todos?
 app.get('/todos', middleware.requireAuthentication, function(req, res) {
 		var query = req.query;
 		var where = {
 			userId: req.user.get('id')
 		};
 
-		if (query.hasOwnProperty('completed') && query.completed === 'true') {
-			where.completed = true;
-		} else if (query.hasOwnProperty('completed') && query.completed === 'false') {
-			where.completed = false;
-		}
+		
 		if (query.hasOwnProperty('q') && query.q.length > 0) {
 			where.description = {
 				$like: '%' + query.q + '%'
@@ -41,6 +37,29 @@ app.get('/todos', middleware.requireAuthentication, function(req, res) {
 		});
 		
 	})
+// GET /travels?
+app.get('/travels', middleware.requireAuthentication, function(req, res) {
+		var query = req.query;
+		var where = {
+			userId: req.user.get('id')
+		};
+
+		
+		if (query.hasOwnProperty('q') && query.q.length > 0) {
+			where.description = {
+				$like: '%' + query.q + '%'
+			};
+		}
+		db.travel.findAll({
+			where: where
+		}).then(function(travels) {
+			res.json(travels);
+		}, function(e) {
+			res.status(500).send();
+		});
+		
+	})
+
 	// GET /todos/:d 
 app.get('/todos/:id', middleware.requireAuthentication, function(req, res) {
 	var todoId = parseInt(req.params.id, 10);
@@ -76,7 +95,21 @@ app.post('/todos', middleware.requireAuthentication, function(req, res) {
 	});
 	
 });
+// POST /travel
+app.post('/travel', middleware.requireAuthentication, function(req, res) {
+	var body = _.pick(req.body, 'title', 'description','date','from','to');
+	db.travel.create(body).then(function(travel) {
 
+		req.user.addTravel(travel).then(function() {
+			return travel.reload();
+		}).then(function(travel) {
+			res.json(travel.toJSON());
+		});
+	}, function(e) {
+		res.status(400).json(e);
+	});
+	
+});
 // DELETE /todos/:id
 app.delete('/todos/:id', middleware.requireAuthentication, function(req, res) {
 	var todoId = parseInt(req.params.id, 10);
