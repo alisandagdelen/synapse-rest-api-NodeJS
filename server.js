@@ -203,7 +203,7 @@ app.delete('/todos/:id', middleware.requireAuthentication, function(req, res) {
 	});
 
 });
-// DELETE /todos/:id
+// DELETE /travels/:id
 app.delete('/travels/:id', middleware.requireAuthentication, function(req, res) {
 	var travelId = parseInt(req.params.id, 10);
 	db.travel.destroy({
@@ -224,6 +224,29 @@ app.delete('/travels/:id', middleware.requireAuthentication, function(req, res) 
 	});
 
 });
+
+// DELETE /shoppings/:id
+app.delete('/shoppings/:id', middleware.requireAuthentication, function(req, res) {
+	var shoppingId = parseInt(req.params.id, 10);
+	db.shopping.destroy({
+		where: {
+			id: shoppingId,
+			userId: req.user.get('id')
+		}
+	}).then(function(rowsDeleted) {
+		if (rowsDeleted === 0) {
+			res.status(404).json({
+				error: 'No shopping with that id'
+			});
+		} else {
+			res.status(204).send();
+		}
+	}, function() {
+		res.status(500).send();
+	});
+
+});
+
 //
 // PUT /todos/:id
 app.put('/todos/:id', middleware.requireAuthentication, function(req, res) {
