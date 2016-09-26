@@ -35,7 +35,7 @@ app.get('/todos', middleware.requireAuthentication, function(req, res) {
 		}, function(e) {
 			res.status(500).send();
 		});
-		
+
 	})
 // GET /travels?
 app.get('/travels', middleware.requireAuthentication, function(req, res) {
@@ -57,6 +57,30 @@ app.get('/travels', middleware.requireAuthentication, function(req, res) {
 		});
 		
 	})
+
+// GET /shoppings?
+app.get('/shoppings', middleware.requireAuthentication, function(req, res) {
+	var query = req.query;
+	var where = {
+		userId: req.user.get('id')
+	};
+
+
+	if (query.hasOwnProperty('q') && query.q.length > 0) {
+		where.description = {
+			$like: '%' + query.q + '%'
+		};
+	}
+	db.shopping.findAll({
+		where: where
+	}).then(function(shopping) {
+		res.json(shopping);
+	}, function(e) {
+		res.status(500).send();
+	});
+
+})
+
 // GET /anniversaries?
 app.get('/anniversaries', middleware.requireAuthentication, function(req, res) {
 		var query = req.query;
@@ -78,7 +102,7 @@ app.get('/anniversaries', middleware.requireAuthentication, function(req, res) {
 		
 	})
 
-	// GET /todos/:d 
+	// GET /todos/:id
 app.get('/todos/:id', middleware.requireAuthentication, function(req, res) {
 	var todoId = parseInt(req.params.id, 10);
 	db.todo.findOne({
@@ -128,6 +152,21 @@ app.post('/travel', middleware.requireAuthentication, function(req, res) {
 	});
 	
 });
+// POST /shopping
+app.post('/shopping', middleware.requireAuthentication, function(req, res) {
+	var body = _.pick(req.body, 'title', 'description','date','list');
+	db.shopping.create(body).then(function(shopping) {
+
+		req.user.addShopping(shopping).then(function() {
+			return shopping.reload();
+		}).then(function(shopping) {
+			res.json(shopping.toJSON());
+		});
+	}, function(e) {
+		res.status(400).json(e);
+	});
+
+});
 // POST /anniversary
 app.post('/anniversary', middleware.requireAuthentication, function(req, res) {
 	var body = _.pick(req.body, 'title', 'description','date','who');
@@ -155,6 +194,27 @@ app.delete('/todos/:id', middleware.requireAuthentication, function(req, res) {
 		if (rowsDeleted === 0) {
 			res.status(404).json({
 				error: 'No todo with that id'
+			});
+		} else {
+			res.status(204).send();
+		}
+	}, function() {
+		res.status(500).send();
+	});
+
+});
+// DELETE /todos/:id
+app.delete('/travels/:id', middleware.requireAuthentication, function(req, res) {
+	var travelId = parseInt(req.params.id, 10);
+	db.travel.destroy({
+		where: {
+			id: travelId,
+			userId: req.user.get('id')
+		}
+	}).then(function(rowsDeleted) {
+		if (rowsDeleted === 0) {
+			res.status(404).json({
+				error: 'No travel with that id'
 			});
 		} else {
 			res.status(204).send();
