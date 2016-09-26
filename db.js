@@ -21,6 +21,7 @@ var sequelize = new Sequelize(undefined, undefined, undefined, {
 var db = {};
 db.todo = sequelize.import(__dirname + '/models/todo.js');
 db.travel = sequelize.import(__dirname + '/models/travel.js');
+db.anniversary = sequelize.import(__dirname + '/models/anniversary.js');
 db.user = sequelize.import(__dirname + '/models/user.js');
 db.token = sequelize.import(__dirname + '/models/token.js');
 db.sequelize = sequelize;
@@ -30,4 +31,6 @@ db.todo.belongsTo(db.user);
 db.user.hasMany(db.todo);
 db.travel.belongsTo(db.user);
 db.user.hasMany(db.travel);
+db.anniversary.belongsTo(db.user);
+db.user.hasMany(db.anniversary);
 module.exports = db;

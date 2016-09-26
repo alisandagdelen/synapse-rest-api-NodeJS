@@ -43,8 +43,6 @@ app.get('/travels', middleware.requireAuthentication, function(req, res) {
 		var where = {
 			userId: req.user.get('id')
 		};
-
-		
 		if (query.hasOwnProperty('q') && query.q.length > 0) {
 			where.description = {
 				$like: '%' + query.q + '%'
@@ -54,6 +52,26 @@ app.get('/travels', middleware.requireAuthentication, function(req, res) {
 			where: where
 		}).then(function(travels) {
 			res.json(travels);
+		}, function(e) {
+			res.status(500).send();
+		});
+		
+	})
+// GET /anniversaries?
+app.get('/anniversaries', middleware.requireAuthentication, function(req, res) {
+		var query = req.query;
+		var where = {
+			userId: req.user.get('id')
+		};
+		if (query.hasOwnProperty('q') && query.q.length > 0) {
+			where.description = {
+				$like: '%' + query.q + '%'
+			};
+		}
+		db.anniversaries.findAll({
+			where: where
+		}).then(function(anniversaries) {
+			res.json(anniversaries);
 		}, function(e) {
 			res.status(500).send();
 		});
@@ -104,6 +122,21 @@ app.post('/travel', middleware.requireAuthentication, function(req, res) {
 			return travel.reload();
 		}).then(function(travel) {
 			res.json(travel.toJSON());
+		});
+	}, function(e) {
+		res.status(400).json(e);
+	});
+	
+});
+// POST /anniversary
+app.post('/anniversary', middleware.requireAuthentication, function(req, res) {
+	var body = _.pick(req.body, 'title', 'description','date','who');
+	db.anniversary.create(body).then(function(anniversary) {
+
+		req.user.addTravel(anniversary).then(function() {
+			return anniversary.reload();
+		}).then(function(anniversary) {
+			res.json(anniversary.toJSON());
 		});
 	}, function(e) {
 		res.status(400).json(e);
