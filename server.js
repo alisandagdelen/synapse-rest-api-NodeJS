@@ -256,15 +256,18 @@ app.put('/todos/:id', middleware.requireAuthentication, function(req, res) {
 		id: todoId
 	});
 	*/
-	var body = _.pick(req.body, 'description', 'completed');
+	var body = _.pick(req.body, 'title', 'description','date');
 	var attributes = {};
 
-	if (body.hasOwnProperty('completed')) {
-		attributes.completed = body.completed;
+	if (body.hasOwnProperty('title')) {
+		attributes.title = body.title;
 	}
 
 	if (body.hasOwnProperty('description')) {
 		attributes.description = body.description;
+	}
+	if (body.hasOwnProperty('date')) {
+		attributes.date = body.date;
 	}
 	db.todo.findOne({
 		where: {
@@ -287,6 +290,93 @@ app.put('/todos/:id', middleware.requireAuthentication, function(req, res) {
 	})
 });
 
+// PUT /travel/:id
+app.put('/travel/:id', middleware.requireAuthentication, function(req, res) {
+	var travelId = parseInt(req.params.id, 10);
+
+	var body = _.pick(req.body, 'title', 'description','date','from','to');
+	var attributes = {};
+
+	if (body.hasOwnProperty('title')) {
+		attributes.title = body.title;
+	}
+
+	if (body.hasOwnProperty('description')) {
+		attributes.description = body.description;
+	}
+	if (body.hasOwnProperty('date')) {
+		attributes.date = body.date;
+	}
+	if (body.hasOwnProperty('from')) {
+		attributes.from = body.from;
+	}
+	if (body.hasOwnProperty('to')) {
+		attributes.to = body.to;
+	}
+	db.travel.findOne({
+		where: {
+			id: travelId,
+			userId: req.user.get('id')
+		}
+	}).then(function(travel) {
+		if (travel) {
+			travel.update(attributes).then(function(travel) {
+				res.json(travel.toJSON());
+
+			}, function(e) {
+				res.status(400).json(e);
+			});
+		} else {
+			res.status(404).send();
+		}
+	}, function() {
+		res.status(500).send();
+	})
+});
+
+// PUT /shopping/:id
+app.put('/shopping/:id', middleware.requireAuthentication, function(req, res) {
+	var shoppingId = parseInt(req.params.id, 10);
+
+	var body = _.pick(req.body, 'title', 'description','date','list');
+	var attributes = {};
+
+	if (body.hasOwnProperty('title')) {
+		attributes.title = body.title;
+	}
+
+	if (body.hasOwnProperty('description')) {
+		attributes.description = body.description;
+	}
+	if (body.hasOwnProperty('date')) {
+		attributes.date = body.date;
+	}
+	if (body.hasOwnProperty('list')) {
+		attributes.list = body.list;
+	}
+
+	db.shopping.findOne({
+		where: {
+			id: shoppingId,
+			userId: req.user.get('id')
+		}
+	}).then(function(shopping) {
+		if (shopping) {
+			shopping.update(attributes).then(function(shopping) {
+				res.json(shopping.toJSON());
+
+			}, function(e) {
+				res.status(400).json(e);
+			});
+		} else {
+			res.status(404).send();
+		}
+	}, function() {
+		res.status(500).send();
+	})
+});
+
+//POST /users
 app.post('/users', function(req, res) {
 	var body = _.pick(req.body, 'email', 'password' ,'username');
 
